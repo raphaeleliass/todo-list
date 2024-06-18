@@ -17,10 +17,10 @@ function Home() {
   const errorRef = useRef<HTMLParagraphElement>(null)
 
   const validateInput = () => {
-    if (inputRef.current?.value === '') {
+    if (!inputRef.current?.value) {
       if (errorRef.current) {
         errorRef.current.innerText = 'This field cannot be empty'
-        inputRef.current.classList.add('border-error')
+        inputRef.current?.classList.add('border-error')
 
         return false
       }
