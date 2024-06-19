@@ -1,111 +1,102 @@
-import { Button } from '@/components/ui/button'
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { useRef } from 'react'
-import { FaPen, FaPlus } from 'react-icons/fa'
-import { FaCircleCheck, FaCircleXmark } from 'react-icons/fa6'
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { FaCheck, FaPlus } from "react-icons/fa";
+import React, { useState } from "react";
 
 function Home() {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const errorRef = useRef<HTMLParagraphElement>(null)
+  const [task, setTask] = useState<string>("");
+  const [todoList, setTodoList] = useState<string[]>([]);
+  const [error, setError] = useState<string>("");
 
   const validateInput = () => {
-    if (!inputRef.current?.value) {
-      if (errorRef.current) {
-        errorRef.current.innerText = 'This field cannot be empty'
-        inputRef.current?.classList.add('border-error')
-
-        return false
-      }
+    if (task === "") {
+      setError("This field cannot be empty");
+      return false;
     } else {
-      if (errorRef.current) {
-        errorRef.current.innerText = ''
-        inputRef.current?.classList.remove('border-error')
-
-        return true
-      }
+      setError("");
+      return true;
     }
-  }
+  };
 
-  const handleSubmit = () => {
-    if (validateInput() == false) {
-      console.log('Error')
-    } else {
-      console.log('Submit')
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (validateInput()) {
+      setTodoList((oldTodoList) => [...oldTodoList, task]);
+      setTask("");
     }
-  }
+  };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      handleSubmit()
-    }
-  }
+  const handleCompleteTask = (taskToComplete: string) => {
+    setTodoList((oldTodoList) =>
+      oldTodoList.filter((todo) => todo !== taskToComplete),
+    );
+  };
 
   return (
-    <section className="flex flex-col space-y-6 min-h-screen items-center justify-center">
-      <Card>
-        <CardHeader>
-          <CardTitle className="capitalize text-2xl font-bold">
-            todo-list
-          </CardTitle>
+    <section className="flex min-h-screen flex-col items-center space-y-12 bg-stone-100">
+      <div className="mt-12 w-full max-w-xs md:max-w-lg">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-center font-Poppins text-4xl font-black text-stone-900 md:text-4xl">
+              TODO LIST
+            </CardTitle>
+            <CardDescription className="text-center">
+              The best way to manage your tasks.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="mx-auto md:max-w-lg">
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-row space-x-1">
+                <Input
+                  placeholder="Add a task"
+                  onChange={(event) => setTask(event.target.value)}
+                  value={task}
+                  className={error ? 'border-error' : ''}
+                />
+                <Button type="submit">
+                  <FaPlus />
+                </Button>
+              </div>
+              {error && (
+                <p className="ml-3 mt-2 text-sm text-red-500">{error}</p>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+      </div>
 
-          <CardDescription>
-            Create, edit and delete to-do tasks.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="flex flex-col">
-          <div className="flex flex-row space-x-1">
-            <Input
-              ref={inputRef}
-              placeholder="Add a task"
-              onKeyUp={handleKeyPress}
-            />
-            <Button ref={buttonRef} type="submit" onClick={handleSubmit}>
-              <FaPlus />
-            </Button>
-          </div>
-
-          <p ref={errorRef} className="text-sm text-red-500"></p>
-        </CardContent>
-      </Card>
-
-      <Card className="mx-4 md:mx-0">
-        <CardHeader className="flex flex-row justify-between">
-          <CardDescription>adicionado segunda-feira, às 19:19 </CardDescription>
-          <button aria-label="edit task button" className="text-blue-500">
-            <FaPen />
-          </button>
-        </CardHeader>
-        <CardContent className="flex flex-row md:space-x-8 justify-end">
-          <CardTitle className="text-xl">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-          </CardTitle>
-          <aside className="flex flex-col justify-center items-center space-y-2">
-            <button
-              aria-label="remove task button"
-              className="text-red-500 text-xl"
-            >
-              <FaCircleXmark />
-            </button>
-            <button
-              aria-label="complete task button"
-              className="text-green-500 text-xl"
-            >
-              <FaCircleCheck />
-            </button>
-          </aside>
-        </CardContent>
-      </Card>
+      <div className="grid w-full max-w-sm grid-cols-1 rounded-xl bg-gradient-to-b from-stone-200 via-stone-100 to-stone-100 md:max-w-3xl md:grid-cols-3 lg:max-w-6xl lg:grid-cols-4">
+        {todoList.map((todo) => (
+          <Card key={todo} className="m-4 flex flex-col justify-between md:m-2">
+            <CardHeader>
+              <CardDescription className="text-xs">
+                Mon, Sep 10, 2024 - 12:00 AM
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CardTitle className="font-Poppins text-xl">{todo}</CardTitle>
+            </CardContent>
+            <CardFooter className="flex justify-center space-x-2">
+              <Button
+                aria-label="complete task button"
+                onClick={() => handleCompleteTask(todo)}
+              >
+                <FaCheck />
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </section>
-  )
+  );
 }
 
-export default Home
+export default Home;
